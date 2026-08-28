@@ -1,0 +1,37 @@
+name: Python Reproducibility
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: locked uv environment and syntax
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pinned uv and select Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.0"
+          python-version: "3.11"
+          enable-cache: false
+
+      - name: Prove manifest and lock agree
+        run: uv lock --check
+
+      - name: Install exact runtime environment
+        run: uv sync --locked --no-dev
+
+      - name: Compile repository Python sources
+        run: uv run --locked --no-sync python -m compileall -q *.py src
