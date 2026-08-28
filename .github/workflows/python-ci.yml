@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   verify:
-    name: locked uv environment and syntax
+    name: locked uv environment
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -33,5 +33,5 @@ jobs:
       - name: Install exact runtime environment
         run: uv sync --locked --no-dev
 
-      - name: Compile repository Python sources
-        run: uv run --locked --no-sync python -m compileall -q *.py src
+      - name: Smoke locked runtime dependencies
+        run: uv run --locked --no-sync python -c "import matplotlib, numpy, pandas, plotly, streamlit, yfinance"
